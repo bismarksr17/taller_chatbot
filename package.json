@@ -1,0 +1,18 @@
+{
+  "name": "base-mensajes-whatsapp-node",
+  "version": "1.0.0",
+  "description": "envío de mensajes por WhatsApp",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "chatbot"
+  ],
+  "author": "bismark.sr.17",
+  "license": "ISC",
+  "dependencies": {
+    "baileys": "^6.7.16",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
