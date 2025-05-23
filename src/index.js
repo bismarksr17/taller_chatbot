@@ -11,7 +11,7 @@ async function conectarWhatsapp(){
     sock.ev.on('creds.update', saveCreds)
 
     // evento de conexión
-    sock.ev.on('connection.update', (update) => {
+    sock.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update;
         if(connection === 'close'){
             const puedoConectar = lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut;
@@ -20,6 +20,13 @@ async function conectarWhatsapp(){
             }
         } else if(connection == 'open'){
             console.log("CONEXIÓN ABIERTA!!!");
+
+            // Listar grupos donde está el bot
+            const grupos = await sock.groupFetchAllParticipating();
+            console.log("Grupos donde está el bot:");
+            Object.values(grupos).forEach(grupo => {
+                console.log(`- ${grupo.subject} (${grupo.id})`);
+            });
         }
     });
 
