@@ -1,18 +1,21 @@
 // importaciones
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require("baileys")
+const qrcode = require("qrcode-terminal");
 
 // función para conectar WhatsApp
 async function conectarWhatsapp(){
     const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys")
     const sock = makeWASocket({
-        auth: state,
-        printQRInTerminal: true
+        auth: state
     });
     sock.ev.on('creds.update', saveCreds)
 
     // evento de conexión
     sock.ev.on('connection.update', async (update) => {
-        const { connection, lastDisconnect } = update;
+        const { connection, lastDisconnect, qr } = update;
+        if (qr) {
+            qrcode.generate(qr, { small: true });
+        }
         if(connection === 'close'){
             const puedoConectar = lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut;
             if(puedoConectar){
@@ -20,13 +23,6 @@ async function conectarWhatsapp(){
             }
         } else if(connection == 'open'){
             console.log("CONEXIÓN ABIERTA!!!");
-
-            // Listar grupos donde está el bot
-            const grupos = await sock.groupFetchAllParticipating();
-            console.log("Grupos donde está el bot:");
-            Object.values(grupos).forEach(grupo => {
-                console.log(`- ${grupo.subject} (${grupo.id})`);
-            });
         }
     });
 
@@ -42,11 +38,42 @@ async function conectarWhatsapp(){
             return
         }
 
-        // enviar mensaje
-        await sock.sendMessage(id, {text: "Hola, soy un bot, en que te puedo ayudar"})
+        // guardar nombre de contacto
+        const nombre = event.messages[0].pushName;
 
+        // lectura de mensaje (confirmar que lo leímos)
+        //await sock.readMessages([message.key]);
+
+        // animación de escribiendo de whatsapp
+        await sleep(100)
+        await sock.sendPresenceUpdate('composing', id)
+        await sleep(5000)
+
+        // enviar mensaje
+        // await sock.sendMessage(id, {text: "Hola, soy un bot, en que te puedo ayudar"})
+        
+        // responder mensaje
+        await sock.sendMessage(id, {text: "Hola " + nombre + ", esta es un respuesta automatica, en este momento no estoy disponible, deje se mensaje y reponderé en cuanto sea posible. Gracias...!!!"}, {quoted: message})    
+
+        // menciones
+        //await sock.sendMessage(id, {
+        //    text: "Hola @59178194371",
+        //    mentions: ["@59178194371@s.whatsapp.net"]
+        //})
+
+        // enviar ubicación
+        //await sock.sendMessage(id, {location: { 
+        //    degreesLatitude: "-17.315760347154626",
+        //    degreesLongitude: "-63.263517187627826",
+        //    address: "Av. 123, Zona: ABCD. (centro)"
+        //}})
     })
 
 }
 
 conectarWhatsapp()
+
+function sleep(ms) {
+    return new Promise((res) => setTimeout(res, ms));
+
+}
