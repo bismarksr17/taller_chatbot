@@ -12,7 +12,7 @@
   "author": "bismark.sr.17",
   "license": "ISC",
   "dependencies": {
-    "baileys": "^6.7.16",
+    "baileys": "^6.7.17",
     "qrcode-terminal": "^0.12.0"
   }
 }

@@ -23,6 +23,16 @@ async function conectarWhatsapp(){
             }
         } else if(connection == 'open'){
             console.log("CONEXIÓN ABIERTA!!!");
+            // Listar todos los grupos
+            try {
+                const grupos = await sock.groupFetchAllParticipating();
+                console.log("Grupos donde el número está vinculado:");
+                Object.values(grupos).forEach(g => {
+                    console.log(`- ${g.subject} (${g.id})`);
+                });
+            } catch (err) {
+                console.error("Error al obtener los grupos:", err);
+            }
         }
     });
 
@@ -53,7 +63,15 @@ async function conectarWhatsapp(){
         // await sock.sendMessage(id, {text: "Hola, soy un bot, en que te puedo ayudar"})
         
         // responder mensaje
-        await sock.sendMessage(id, {text: "Hola " + nombre + ", esta es un respuesta automatica, en este momento no estoy disponible, deje se mensaje y reponderé en cuanto sea posible. Gracias...!!!"}, {quoted: message})    
+        await sock.sendMessage(id, {text: "Hola " + nombre + ", esta es un respuesta automatica, en este momento no estoy disponible, deje se mensaje y reponderé en cuanto sea posible. Gracias...!!!"})
+
+        // Enviar mensaje a un grupo específico
+        const grupoId = "120363304200372914@g.us"; // Reemplaza por el ID real de tu grupo
+        try {
+            await sock.sendMessage(grupoId, {text: `Mensaje automático: El bot ha respondido a ${nombre}`});
+        } catch (err) {
+            console.error("Error al enviar mensaje al grupo específico:", err);
+        }
 
         // menciones
         //await sock.sendMessage(id, {
